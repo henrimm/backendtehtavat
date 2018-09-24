@@ -96,7 +96,6 @@ namespace Pelijuttujentaustat
             FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("_id", playerId);
             Player player = await _collection.Find(filter).FirstAsync();
             if (player.Level >= item.ItemLevel) {
-            
                 player.Items.Add(item);
                 await _collection.ReplaceOneAsync(filter, player);
                 return item;
