@@ -13,6 +13,7 @@ namespace Pelijuttujentaustat
         Task<Player> Modify(Guid id, ModifiedPlayer player);
         Task<Player> Delete(Guid id);
         //Items
+        Task<Item> GetItem(Guid id, Guid itemid);
         Task<Item[]> GetItems(Guid id);
         Task<Item> CreateItem(Guid id, Item item, DateTime creationtime);
         Task<Item> ModifyItem(Guid id, ModifiedItem item, Guid itemid);

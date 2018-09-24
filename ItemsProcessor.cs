@@ -12,6 +12,11 @@ namespace Pelijuttujentaustat
         {
             _repository = repository;
         }
+
+        public Task<Item> GetItem(Guid id, Guid itemid) {
+            return _repository.GetItem(id, itemid);
+        }
+
         public Task<Item[]> GetItems(Guid id){
             return _repository.GetItems(id);
         }

@@ -71,6 +71,19 @@ namespace Pelijuttujentaustat
             return null;
         }
 
+        public Task<Item> GetItem(Guid id, Guid itemid) {
+            for(int i = 0; i < players.Count; i++) {
+                if(players[i].Id==id) {
+                    for(int j = 0; j < players[i].Items.Count; j++) {
+                        if(players[i].Items[j].ItemId == itemid) {
+                            return Task.FromResult(players[i].Items[j]);
+                        }
+                    }
+                }
+            }
+            return Task.FromResult((Item)null);
+        }
+        
         public Task<Item[]> GetItems(Guid id){
 
              for(int i = 0; i < players.Count;i++){

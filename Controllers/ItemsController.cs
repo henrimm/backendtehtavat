@@ -20,7 +20,13 @@ namespace Pelijuttujentaustat
         {
             _processor = processor;
         }
-
+        
+        [Route("{itemid}")]
+        [HttpGet]
+        public Task<Item> GetItem(Guid id, Guid itemid) {
+            return _processor.GetItem(id, itemid);
+        }
+        
         [Route("")]
         [HttpGet]
         public Task<Item[]>GetItems(Guid id){
