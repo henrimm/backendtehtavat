@@ -38,22 +38,96 @@ namespace Pelijuttujentaustat
             return _collection.Find(filter).FirstAsync();
         }
 
-        public async Task<Player[]> GetBetweenLevelsAsync(int minLevel, int maxLevel)
+        public Task<Player> GetName(String name)
         {
-            FilterDefinition<Player> filter = Builders<Player>.Filter.Gte("Level", 18) & Builders<Player>.Filter.Lte("Level", 30);
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("Name", name);
+            return _collection.Find(filter).FirstAsync();
+        }
+
+        public async Task<Player[]> GetWithScoreMoreThan(int minscore)
+        {
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Gt("Score", minscore);
             List<Player> players = await _collection.Find(filter).ToListAsync();
             return players.ToArray();
         }
 
-
-        public Task<Player> IncreasePlayerScoreAndRemoveItem(Guid playerId, Guid itemId, int score)
+        public async Task<Player[]> GetWithTag(Tag playertag)
         {
-            var pull = Builders<Player>.Update.PullFilter(p => p.Items, i => i.ItemId == itemId);
-            var inc = Builders<Player>.Update.Inc(p => p.Score, score);
-            var update = Builders<Player>.Update.Combine(pull, inc);
-            var filter = Builders<Player>.Filter.Eq(p => p.Id, playerId);
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("PlayerTag", playertag);
+            List<Player> players = await _collection.Find(filter).ToListAsync();
+            return players.ToArray();
+        }
 
+        
+        public async Task<Player[]> GetWithItemProperty(int itemlevel)
+        {   
+            FilterDefinition<Player> filter = Builders<Player>.Filter.ElemMatch(a => a.Items, b => b.ItemLevel==itemlevel);
+            List<Player> players = await _collection.Find(filter).ToListAsync();
+            return players.ToArray();
+        }
+
+        public async Task<Player[]> GetWithItemAmount(int itemamount)
+        {   
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Size("Items",itemamount);
+            List<Player> players = await _collection.Find(filter).ToListAsync();
+            return players.ToArray();
+        }
+
+        public async Task<Player> UpdatePlayerName(Guid playerid, String name)
+        {
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("id", playerid);
+            var updatename = Builders<Player>.Update.Set("name", name);
+            Player player = await _collection.FindOneAndUpdateAsync(filter, updatename);
+            return player;
+        }
+        
+        public async Task<Player> IncrementScore(Guid playerid, int incscore)
+        {
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("id", playerid);
+            var incrementscore = Builders<Player>.Update.Inc("score", incscore);
+            Player player = await _collection.FindOneAndUpdateAsync(filter, incrementscore);
+            return player;
+        }
+
+        public async Task<Player> AddItem(Guid playerid,Item item)
+        {
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("id", playerid);
+            var additem = Builders<Player>.Update.Push("Items", item);
+            Player player = await _collection.FindOneAndUpdateAsync(filter, additem);
+            return player;
+        }
+
+         public Task<Player> RemoveItemIncScore(Guid playerid, int score, Guid itemid)
+        {
+            var pullfilter = Builders<Player>.Update.PullFilter(p => p.Items, i => i.ItemId == itemid);
+            var incscore = Builders<Player>.Update.Inc(p => p.Score, score);
+            var update = Builders<Player>.Update.Combine(pullfilter, incscore);
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq(p => p.Id, playerid);
             return _collection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        public async Task<Player[]> GetPlayersSortedByScore()
+        {
+            SortDefinition<Player> sort = Builders<Player>.Sort.Descending(p => p.Score);
+            List<Player> players = await _collection.Find(new BsonDocument()).Sort(sort).Limit(10).ToListAsync();
+            return players.ToArray();
+          
+        }
+
+        public async Task<int?> GetMostCommonLevel()
+        {
+            var aggregate =_collection.Aggregate()
+                            .Project(new BsonDocument{ {"Level", 1} })
+                            .Group(new BsonDocument { { "_id", "$Level" }, { "Count", new BsonDocument("$sum", 1) } })
+                            .Sort(new BsonDocument { { "count", -1 } })
+                            .Limit(1);      
+
+            var list = await aggregate.ToListAsync();
+            BsonValue value;
+            if(list[0].TryGetValue("Level", out value)){
+                return int.Parse(value.ToString());
+            }
+            return (int?)null;    
         }
 
         public async Task<Player> Modify(Guid id, ModifiedPlayer modifiedPlayer)
@@ -62,25 +136,6 @@ namespace Pelijuttujentaustat
             Player player = await _collection.Find(filter).FirstAsync();
             player.Score = modifiedPlayer.Score;
             await _collection.ReplaceOneAsync(filter, player);
-            return player;
-        }
-
-        public async Task<Player[]> GetAllSortedByScoreDescending()
-        {
-            SortDefinition<Player> sortDef = Builders<Player>.Sort.Descending(p => p.Score);
-            List<Player> players = await _collection.Find(new BsonDocument()).Sort(sortDef).ToListAsync();
-            return players.ToArray();
-        }
-
-        public async Task<Player> IncrementPlayerScore(string id, int increment)
-        {
-            var filter = Builders<Player>.Filter.Eq("_id", id);
-            var incrementScoreUpdate = Builders<Player>.Update.Inc(p => p.Score, increment);
-            var options = new FindOneAndUpdateOptions<Player>()
-            {
-                ReturnDocument = ReturnDocument.After
-            };
-            Player player = await _collection.FindOneAndUpdateAsync(filter, incrementScoreUpdate, options);
             return player;
         }
 
