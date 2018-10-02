@@ -9,6 +9,17 @@ namespace Pelijuttujentaustat
         //Players
         Task<Player> Get(Guid id);
         Task<Player[]> GetAll();
+        Task<Player> GetName(String name);
+        Task<Player[]> GetWithScoreMoreThan(int minscore);
+        Task<Player[]> GetWithItemAmount(int itemamount);
+        Task<Player[]> GetWithTag(Tag playertag);
+        Task<Player[]> GetWithItemProperty(int itemlevel);
+        Task<Player> UpdatePlayerName(Guid playerid, String name);
+        Task<Player> IncrementScore(Guid playerid, int incscore);
+        Task<Player> AddItem(Guid playerid,Item item);
+        Task<Player> RemoveItemIncScore(Guid playerid,int score, Guid itemid);
+        Task<Player[]> GetPlayersSortedByScore();
+        Task<int?> GetMostCommonLevel();
         Task<Player> Create(Player player);
         Task<Player> Modify(Guid id, ModifiedPlayer player);
         Task<Player> Delete(Guid id);

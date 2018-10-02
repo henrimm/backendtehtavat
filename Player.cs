@@ -11,6 +11,7 @@ namespace Pelijuttujentaustat {
         public DateTime CreationTime { get; set; }
         public int Level { get; set; }
         public List<Item> Items { get; set; }
+        public Tag PlayerTag {get;set;}
     }
 
     public class NewPlayer {
@@ -21,5 +22,9 @@ namespace Pelijuttujentaustat {
 
     public class ModifiedPlayer {
         public int Score { get; set; }
+    }
+
+    public enum Tag {
+        ranger, warrior, mage
     }
 }
