@@ -11,6 +11,7 @@ namespace Pelijuttujentaustat
     {
         private readonly IMongoCollection<Player> _collection;
         private readonly IMongoCollection<BsonDocument> _bsonDocumentCollection;
+        private readonly IMongoCollection<Log> logCollection;
 
         public MongoDbRepository()
         {
@@ -18,6 +19,7 @@ namespace Pelijuttujentaustat
             IMongoDatabase database = mongoClient.GetDatabase("Game");
             _collection = database.GetCollection<Player>("players");
             _bsonDocumentCollection = database.GetCollection<BsonDocument>("players");
+            logCollection = database.GetCollection<Log>("log");
         }
 
         public async Task<Player> Create(Player player)
@@ -205,6 +207,16 @@ namespace Pelijuttujentaustat
                 }
             }
             return null;
+        }
+
+        public async Task AuditDeleteStart()
+        {
+            await logCollection.InsertOneAsync(new Log("A request to delete player started at " + DateTime.Now.ToString()));
+        }
+ 
+        public async Task AuditDeleteSuccess()
+        {
+            await logCollection.InsertOneAsync(new Log("A request to delete player ended at " + DateTime.Now.ToString()));
         }
     }
 }

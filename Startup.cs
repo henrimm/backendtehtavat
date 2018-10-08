@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Pelijuttujentaustat.Middleware;
 
 namespace Pelijuttujentaustat
 {
@@ -29,7 +30,12 @@ namespace Pelijuttujentaustat
             services.AddSingleton<IRepository,MongoDbRepository>();
             services.AddSingleton<PlayersProcessor>();
             services.AddSingleton<ItemsProcessor>();
-
+            services.AddScoped<AuditActionFilter>();
+            services.Configure<SecuritySettings>(Configuration.GetSection("SecuritySettings"));
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +50,7 @@ namespace Pelijuttujentaustat
                 app.UseHsts();
             }
 
+            app.UseMiddleware<Auth>();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

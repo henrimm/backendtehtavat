@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pelijuttujentaustat
 {
-    public class InMemoryRepository: IRepository
+    /*public class InMemoryRepository: IRepository
     {
         public InMemoryRepository(){
             Player temp = new Player();
@@ -139,5 +139,18 @@ namespace Pelijuttujentaustat
             }
             return null;
         }
-    }
+
+        private List<Log> Log = new List<Log>();
+        public Task AuditDeleteStarted()
+        {
+            Log.Add(new Log("A request to delete player started at " + DateTime.Now.ToString()));
+            return Task.CompletedTask;
+        }
+ 
+        public Task AuditDeleteSuccess()
+        {
+            Log.Add(new Log("A request to delete player ended at " + DateTime.Now.ToString()));
+            return Task.CompletedTask;
+        }
+    }*/
 }

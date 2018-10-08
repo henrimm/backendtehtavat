@@ -5,6 +5,9 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Pelijuttujentaustat
 {
@@ -127,12 +130,20 @@ namespace Pelijuttujentaustat
         }
         
         
-        [Route("{id}")]
+        /*[Route("{id}")]
         [HttpDelete]
         public Task<Player> Delete(Guid id)
         {
             return _processor.Delete(id);
+        }*/
+
+        [Authorize(Policy = "AdminOnly")]
+        [ServiceFilter(typeof(AuditActionFilter))]
+        [HttpDelete]
+        [Route("{id}")]
+        public Task<Player> Delete(Guid id)
+        {
+            return _processor.Delete(id);
         }
-        
     }
 }

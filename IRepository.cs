@@ -29,6 +29,8 @@ namespace Pelijuttujentaustat
         Task<Item> CreateItem(Guid id, Item item, DateTime creationtime);
         Task<Item> ModifyItem(Guid id, ModifiedItem item, Guid itemid);
         Task<Item> DeleteItem(Guid id, Guid itemid);
+        Task AuditDeleteStart();
+        Task AuditDeleteSuccess();
 
     }
 }
